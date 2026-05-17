@@ -11,10 +11,7 @@ from pensjon.datasource.lonn_datasource import LonnSysselsettingDataSource
 from pensjon.repository.befolkning_repository import BefolkningRepository
 from pensjon.repository.arbeidsmarked_repository import LonnSysselsettingRepository
 
-from pensjon.usecase.pensjon_usecases import (
-    GetPensionAgeShareUseCase,
-    GetNaeringProfilUseCase,
-)
+from pensjon.usecase.pensjon_usecases import (GetPensionAgeShareUseCase, GetNaeringProfilUseCase,)
 
 
 class Dependencies:
