@@ -4,7 +4,6 @@ import duckdb
 from pensjon.lakehouse.config import LakehouseConfig
 from pensjon.sql_loader import load_sql
 
-
 class SilverStage:
     def __init__(self, db: duckdb.DuckDBPyConnection, config: LakehouseConfig):
         self.db = db
