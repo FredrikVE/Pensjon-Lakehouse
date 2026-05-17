@@ -5,11 +5,7 @@ from pensjon.lakehouse.config import LakehouseConfig
 from pensjon.sql_loader import load_sql
 
 class GoldStage:
-    def __init__(
-        self,
-        db: duckdb.DuckDBPyConnection,
-        config: LakehouseConfig,
-    ):
+    def __init__(self, db: duckdb.DuckDBPyConnection, config: LakehouseConfig):
         self.db = db
         self.config = config
         self.lake = config.lake_path
