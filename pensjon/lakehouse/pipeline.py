@@ -12,32 +12,22 @@ from pensjon.lakehouse.structure_printer import LakehouseStructurePrinter
 
 
 class PensjonLakehousePipeline:
-    def __init__(self, deps: Dependencies, config: LakehouseConfig | None = None ):
+    def __init__(self, deps: Dependencies, config: LakehouseConfig):
         self.deps = deps
-        self.config = config or LakehouseConfig()
+        self.config = config
         self.lake = self.config.lake_path
 
     def run(self) -> None:
         self._print_header()
         self._setup_lakehouse()
-
         db = duckdb.connect()
 
         try:
             BronzeStage(deps=self.deps, db=db, config=self.config).run()
+            SilverStage(db=db, config=self.config).run()
+            GoldStage(db=db, config=self.config).run()
 
-            SilverStage(db=db,
-                config=self.config,
-            ).run()
-
-            GoldStage(
-                db=db,
-                config=self.config,
-            ).run()
-
-            LakehouseStructurePrinter(
-                config=self.config,
-            ).print()
+            LakehouseStructurePrinter(config=self.config).print()
 
             self._print_success()
 
