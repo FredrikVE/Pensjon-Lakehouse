@@ -1,4 +1,4 @@
-SQL = """
+-- Pensjon-Lakehouse/pensjon/sql/silver/build_befolkning_pensjon.sql
 COPY (
     SELECT
         kommune_code,
@@ -22,4 +22,3 @@ COPY (
     ORDER BY year, pension_age_share DESC
 ) TO '$lake/silver/befolkning_pensjon.parquet'
   (FORMAT PARQUET, COMPRESSION ZSTD);
-"""

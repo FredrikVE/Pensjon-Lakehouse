@@ -1,4 +1,4 @@
-SQL = """
+-- Pensjon-Lakehouse/pensjon/sql/silver/build_naering_pensjon.sql
 COPY (
     SELECT
         naering_code,
@@ -13,4 +13,3 @@ COPY (
     ORDER BY estimert_pensjonsvolum DESC NULLS LAST
 ) TO '$lake/silver/naering_pensjon.parquet'
   (FORMAT PARQUET, COMPRESSION ZSTD);
-"""

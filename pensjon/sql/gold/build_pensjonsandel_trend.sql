@@ -1,4 +1,4 @@
-SQL = """
+-- Pensjon-Lakehouse/pensjon/sql/gold/build_pensjonsandel_trend.sql
 COPY (
     SELECT
         year,
@@ -10,4 +10,3 @@ COPY (
     ORDER BY year
 ) TO '$lake/gold/pensjonsandel_trend.parquet'
   (FORMAT PARQUET);
-"""

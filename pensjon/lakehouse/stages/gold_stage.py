@@ -22,7 +22,7 @@ class GoldStage:
     def _build_top_kommuner_pensjonsalder(self) -> None:
         self.db.execute(
             load_sql(
-                "gold/build_top_kommuner_pensjonsalder.py",
+                "gold/build_top_kommuner_pensjonsalder.sql",
                 lake=self.lake,
             )
         )
@@ -31,7 +31,7 @@ class GoldStage:
 
         result = self.db.execute(
             load_sql(
-                "gold/select_top_kommuner.py",
+                "gold/select_top_kommuner.sql",
                 lake=self.lake,
             )
         ).fetchdf()
@@ -41,7 +41,7 @@ class GoldStage:
     def _build_naering_pensjonsvolum(self) -> None:
         self.db.execute(
             load_sql(
-                "gold/build_naering_pensjonsvolum.py",
+                "gold/build_naering_pensjonsvolum.sql",
                 lake=self.lake,
             )
         )
@@ -50,7 +50,7 @@ class GoldStage:
 
         result = self.db.execute(
             load_sql(
-                "gold/select_naering_pensjonsvolum.py",
+                "gold/select_naering_pensjonsvolum.sql",
                 lake=self.lake,
             )
         ).fetchdf()
@@ -60,7 +60,7 @@ class GoldStage:
     def _build_pensjonsandel_trend(self) -> None:
         self.db.execute(
             load_sql(
-                "gold/build_pensjonsandel_trend.py",
+                "gold/build_pensjonsandel_trend.sql",
                 lake=self.lake,
             )
         )
@@ -69,7 +69,7 @@ class GoldStage:
 
         result = self.db.execute(
             load_sql(
-                "gold/select_pensjonsandel_trend.py",
+                "gold/select_pensjonsandel_trend.sql",
                 lake=self.lake,
             )
         ).fetchdf()

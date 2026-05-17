@@ -53,7 +53,7 @@ class BronzeStage:
 
         self.db.execute(
             load_sql(
-                "bronze/copy_befolkning_to_bronze.py",
+                "bronze/copy_befolkning_to_bronze.sql",
                 lake=self.lake,
                 batch_id=batch_id,
             )
@@ -77,7 +77,7 @@ class BronzeStage:
 
         self.db.execute(
             load_sql(
-                "bronze/copy_lonn_syss_to_bronze.py",
+                "bronze/copy_lonn_syss_to_bronze.sql",
                 lake=self.lake,
                 batch_id=batch_id,
             )

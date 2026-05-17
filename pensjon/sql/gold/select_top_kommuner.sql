@@ -1,4 +1,4 @@
-SQL = """
+-- Pensjon-Lakehouse/pensjon/sql/gold/select_top_kommuner.py
 SELECT
     kommune_label AS kommune,
     total_befolkning AS innbyggere,
@@ -6,4 +6,3 @@ SELECT
     ROUND(pension_age_share * 100, 1) AS "andel_%"
 FROM read_parquet('$lake/gold/top_kommuner_pensjonsalder.parquet')
 LIMIT 10;
-"""

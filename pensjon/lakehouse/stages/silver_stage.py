@@ -21,7 +21,7 @@ class SilverStage:
     def _build_befolkning_pensjon(self) -> None:
         self.db.execute(
             load_sql(
-                "silver/build_befolkning_pensjon.py",
+                "silver/build_befolkning_pensjon.sql",
                 lake=self.lake,
             )
         )
@@ -33,7 +33,7 @@ class SilverStage:
     def _build_naering_pensjon(self) -> None:
         self.db.execute(
             load_sql(
-                "silver/build_naering_pensjon.py",
+                "silver/build_naering_pensjon.sql",
                 lake=self.lake,
             )
         )

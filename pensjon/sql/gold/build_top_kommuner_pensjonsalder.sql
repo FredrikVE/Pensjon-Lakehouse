@@ -1,4 +1,4 @@
-SQL = """
+-- /Users/fredrik/Koding/Pensjon-Lakehouse/pensjon/sql/gold/build_top_kommuner_pensjonsalder.sql
 COPY (
     SELECT
         kommune_code,
@@ -16,4 +16,3 @@ COPY (
     LIMIT 20
 ) TO '$lake/gold/top_kommuner_pensjonsalder.parquet'
   (FORMAT PARQUET);
-"""

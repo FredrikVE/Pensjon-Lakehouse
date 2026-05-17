@@ -1,4 +1,4 @@
-SQL = """
+-- Pensjon-Lakehouse/pensjon/sql/bronze/copy_befolkning_to_bronze.sql
 COPY (
     SELECT *,
            CURRENT_TIMESTAMP AS _ingest_ts,
@@ -7,4 +7,3 @@ COPY (
     FROM raw_befolkning
 ) TO '$lake/bronze/befolkning/data.parquet'
   (FORMAT PARQUET, COMPRESSION ZSTD);
-"""
