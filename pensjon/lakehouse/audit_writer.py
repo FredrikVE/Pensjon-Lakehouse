@@ -9,12 +9,7 @@ class AuditWriter:
         self.config = config
         self.lake = config.lake_path
 
-    def write_bronze_audit(
-        self,
-        batch_id: str,
-        bef_count: int,
-        ls_count: int,
-    ) -> None:
+    def write_bronze_audit(self, batch_id: str, bef_count: int, ls_count: int) -> None:
         audit = {
             "version": 0,
             "timestamp": datetime.now().isoformat(),
