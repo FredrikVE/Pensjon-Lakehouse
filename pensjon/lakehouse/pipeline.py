@@ -10,7 +10,6 @@ from pensjon.lakehouse.stages.silver_stage import SilverStage
 from pensjon.lakehouse.stages.gold_stage import GoldStage
 from pensjon.lakehouse.structure_printer import LakehouseStructurePrinter
 
-
 class PensjonLakehousePipeline:
     def __init__(self, deps: Dependencies, config: LakehouseConfig):
         self.deps = deps
