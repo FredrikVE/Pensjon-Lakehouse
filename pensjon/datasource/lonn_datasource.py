@@ -1,3 +1,4 @@
+#Pensjon-Lakehouse/pensjon/datasource/lonn_datasource.py
 """
 DataSource for SSB tabell 11654: Lønnstakere, jobber, lønn og lønnsindeks.
 

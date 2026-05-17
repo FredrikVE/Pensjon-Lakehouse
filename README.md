@@ -1,8 +1,16 @@
 # Pensjon Lakehouse
 
-En datapipeline som henter **ekte data fra SSB** (Statistisk sentralbyrå) og lander dem i en **Data Lakehouse-arkitektur** (Bronze → Silver → Gold) for å analysere pensjonsrelevante mønstre i norske kommuner og næringer.
+En datapipeline som henter **ekte data fra SSB** og lander dem i en enkel **Data Lakehouse-arkitektur** med lagene **Bronze → Silver → Gold**.
 
-Prosjektet er bygget for å demonstrere hele kjeden fra API-innhenting til forretningsklare analyser, med tydelig lagdeling inspirert av MVVM-mønsteret.
+Prosjektet analyserer pensjonsrelevante mønstre i norske kommuner og næringer:
+
+- demografi og alderssammensetning
+- andel innbyggere 55+
+- kommuner med høy pensjonsmodenhet
+- næringer med høyt estimert pensjonsvolum
+- utvikling i aldersgrupper over tid
+
+Prosjektet er bygget som et lite porteføljeprosjekt med tydelig separasjon mellom datainnhenting, transformasjon, SQL-logikk, pipeline-steg og rapportering.
 
 ---
 
@@ -11,113 +19,430 @@ Prosjektet er bygget for å demonstrere hele kjeden fra API-innhenting til forre
 Pipelinen henter to datasett fra SSBs åpne API:
 
 | Kilde | SSB-tabell | Innhold |
-|---|---|---|
-| Befolkning | [07459](https://www.ssb.no/statbank/table/07459) | Befolkning per aldersgruppe og kommune, 5 siste år |
-| Lønn/sysselsetting | [11654](https://www.ssb.no/statbank/table/11654) | Antall lønnstakere og gjennomsnittlig månedslønn per næring, kvartalsvis |
+|---|---:|---|
+| Befolkning | 07459 | Befolkning per alder og kommune |
+| Lønn/sysselsetting | 11654 | Antall lønnstakere og gjennomsnittlig månedslønn per næring |
 
-Dataene landes som Parquet-filer i en Lakehouse-struktur og transformeres gjennom tre lag:
+Dataene lagres som Parquet-filer under:
 
-**Bronze** – Rådata fra SSB, uendret, med governance-metadata (kilde, batch-ID, tidsstempel).
+```text
+/tmp/pensjon_lakehouse/
+```
 
-**Silver** – Renset og koblet: befolkning aggregert til pensjonsandel per kommune, lønn og sysselsetting koblet per næring med estimert pensjonsvolum.
+Pipelinen bygger tre datalag:
 
-**Gold** – Tre forretningsklare analyser:
-- Kommuner med høyest andel 55+ (pensjonsmodenhet)
-- Næringer rangert etter estimert pensjonsvolum (lønnstakere × lønn × 12 × 2% OTP)
-- Pensjonsandel-trend over tid (landsgjennomsnitt)
+```text
+Bronze → Silver → Gold
+```
+
+Rapportering og visualisering skjer i Jupyter Notebook, og notebooken leser i størst mulig grad fra **Gold-laget**.
 
 ---
 
 ## Arkitektur
 
-Koden følger et DataSource → Repository → UseCase-mønster, det samme mønsteret som brukes i [Opplett](https://github.com/) (et MVVM-basert værprosjekt i React), men her i Python:
+Prosjektet er bygget som en enkel lakehouse-pipeline med tydelig separasjon mellom datainnhenting, transformasjon og rapportering. `main.py` starter applikasjonen, `Dependencies` setter opp datakilder og repositories, og `PensjonLakehousePipeline` orkestrerer kjøringen gjennom `BronzeStage`, `SilverStage` og `GoldStage`. SQL-transformasjonene ligger som egne `.sql`-filer under `pensjon/sql/` og lastes inn via `sql_loader.py`. Notebooken leser rapportklare data fra Gold-laget og visualiserer resultatene med Matplotlib.
 
-```
-pensjon_lakehouse/
-├── main.py                              ← Pipeline: SSB → Bronze → Silver → Gold
-└── pensjon/
-    ├── dependencies.py                  ← Composition root (dependency injection)
-    ├── datasource/
-    │   ├── ssb_datasource.py            ← Base HTTP-klient mot SSB (POST)
-    │   ├── befolkning_datasource.py     ← Tabell 07459
-    │   ├── lonn_datasource.py           ← Tabell 11654
-    │   └── jsonstat_parser.py           ← Parser for JSON-stat2 format
-    ├── repository/
-    │   ├── befolkning_repository.py     ← Cache, rensing, pensjonsaldersberegning
-    │   └── arbeidsmarked_repository.py  ← Pivoterer lønn + sysselsetting per næring
-    └── usecase/
-        └── pensjon_usecases.py          ← Forretningslogikk og avledede beregninger
-```
+![Arkitekturdiagram](Pensjon_Lakehouse.png)
 
-### Mapping til MVVM-mønsteret
+## Overordnet dataflyt
 
-| Lag | Ansvar | Tilsvarer i Opplett (React) |
-|---|---|---|
-| `SSBDataSource` | Lavnivå HTTP mot SSB API | `DataSource.js` |
-| `BefolkningDataSource` | Bygger JSON-spørring for tabell 07459 | `LocationForecastDataSource.js` |
-| `BefolkningRepository` | Cache, koordinatvasking, transformering | `LocationForecastRepository.js` |
-| `GetPensionAgeShareUseCase` | Forretningslogikk – beregn pensjonsandel | `GetCurrentWeatherUseCase.js` |
-| `Dependencies` | Composition root, oppretter objektgrafen | `dependencies.js` |
-
-### Dataflyt
-
-```
-SSB API (07459, 11654)
-    ↓ POST med JSON-spørring
+```text
+SSB API
+  ↓
 DataSource
-    ↓ Rå JSON-stat2
-Repository (parse, cache, rens)
-    ↓ Python dicts
-UseCase (forretningslogikk)
-    ↓ Pandas DataFrame
-DuckDB → Bronze (Parquet)
-    ↓ SQL-transformasjoner
-Silver (Parquet)
-    ↓ Aggregering
-Gold (Parquet) → Analyseresultater
+  ↓
+Repository
+  ↓
+Pandas DataFrame
+  ↓
+DuckDB
+  ↓
+Bronze Parquet
+  ↓
+Silver Parquet
+  ↓
+Gold Parquet
+  ↓
+Notebook / rapport / visualisering
 ```
+
+---
+
+## Lakehouse-lagene
+
+### Bronze
+
+Bronze-laget inneholder rådata fra SSB, landet som Parquet.
+
+Bronze-dataene er i hovedsak rå, men får lagt på enkel metadata:
+
+- `_ingest_ts`
+- `_source`
+- `_batch_id`
+
+Eksempel på output:
+
+```text
+/tmp/pensjon_lakehouse/bronze/
+├── befolkning/
+│   └── data.parquet
+└── lonn_sysselsetting/
+    └── data.parquet
+```
+
+---
+
+### Silver
+
+Silver-laget foredler Bronze-data til analytiske mellomtabeller.
+
+Eksempel på output:
+
+```text
+/tmp/pensjon_lakehouse/silver/
+├── befolkning_pensjon.parquet
+├── befolkning_aldersgrupper.parquet
+└── naering_pensjon.parquet
+```
+
+Silver-tabellene inneholder blant annet:
+
+| Fil | Innhold |
+|---|---|
+| `befolkning_pensjon.parquet` | Befolkning per kommune og år, med beregnet andel 55+ |
+| `befolkning_aldersgrupper.parquet` | Befolkning fordelt på aldersgrupper per kommune og år |
+| `naering_pensjon.parquet` | Næringer med lønnstakere, månedslønn og estimert pensjonsvolum |
+
+---
+
+### Gold
+
+Gold-laget inneholder rapportklare datasett.
+
+Eksempel på output:
+
+```text
+/tmp/pensjon_lakehouse/gold/
+├── top_kommuner_pensjonsalder.parquet
+├── naering_pensjonsvolum.parquet
+├── pensjonsandel_trend.parquet
+├── aldersgruppe_fordeling_siste_ar.parquet
+├── aldersgruppe_trend.parquet
+└── aldersfordeling_siste_ar.parquet
+```
+
+Gold-tabellene brukes direkte av terminal-output og notebook-rapporten.
+
+| Fil | Innhold |
+|---|---|
+| `top_kommuner_pensjonsalder.parquet` | Toppliste over kommuner med høyest andel 55+ |
+| `naering_pensjonsvolum.parquet` | Næringer rangert etter estimert pensjonsvolum |
+| `pensjonsandel_trend.parquet` | Utvikling i gjennomsnittlig andel 55+ over tid |
+| `aldersgruppe_fordeling_siste_ar.parquet` | Aldersgruppefordeling for nyeste år |
+| `aldersgruppe_trend.parquet` | Aldersgrupper som andel av befolkningen per år |
+| `aldersfordeling_siste_ar.parquet` | Ettårsaldersfordeling for nyeste år, brukt til fordelingskurve |
+
+---
+
+## Prosjektstruktur
+
+```text
+Pensjon-Lakehouse/
+├── README.md
+├── main.py
+├── notebooks/
+│   └── 01_pensjonsdemografi_og_pensjonsvolum.ipynb
+└── pensjon/
+    ├── datasource/
+    │   ├── befolkning_datasource.py
+    │   ├── jsonstat_parser.py
+    │   ├── lonn_datasource.py
+    │   └── ssb_datasource.py
+    │
+    ├── di/
+    │   └── dependencies.py
+    │
+    ├── repository/
+    │   ├── arbeidsmarked_repository.py
+    │   └── befolkning_repository.py
+    │
+    ├── usecase/
+    │   └── pensjon_usecases.py
+    │
+    ├── lakehouse/
+    │   ├── audit_writer.py
+    │   ├── config.py
+    │   ├── pipeline.py
+    │   ├── structure_printer.py
+    │   └── stages/
+    │       ├── bronze_stage.py
+    │       ├── silver_stage.py
+    │       └── gold_stage.py
+    │
+    ├── sql/
+    │   ├── bronze/
+    │   │   ├── copy_befolkning_to_bronze.sql
+    │   │   └── copy_lonn_syss_to_bronze.sql
+    │   │
+    │   ├── silver/
+    │   │   ├── build_befolkning_pensjon.sql
+    │   │   ├── build_befolkning_aldersgrupper.sql
+    │   │   └── build_naering_pensjon.sql
+    │   │
+    │   └── gold/
+    │       ├── build_top_kommuner_pensjonsalder.sql
+    │       ├── build_naering_pensjonsvolum.sql
+    │       ├── build_pensjonsandel_trend.sql
+    │       ├── build_aldersgruppe_fordeling_siste_ar.sql
+    │       ├── build_aldersgruppe_trend.sql
+    │       ├── build_aldersfordeling_siste_ar.sql
+    │       ├── select_top_kommuner.sql
+    │       ├── select_naering_pensjonsvolum.sql
+    │       ├── select_pensjonsandel_trend.sql
+    │       ├── select_aldersgruppe_fordeling_siste_ar.sql
+    │       └── select_aldersgruppe_trend.sql
+    │
+    └── sql_loader.py
+```
+
+---
+
+## Viktige komponenter
+
+### `main.py`
+
+Entry point for applikasjonen.
+
+```python
+from pensjon.di.dependencies import Dependencies
+from pensjon.lakehouse.config import LakehouseConfig
+from pensjon.lakehouse.pipeline import PensjonLakehousePipeline
+
+
+if __name__ == "__main__":
+    pipeline = PensjonLakehousePipeline(
+        deps=Dependencies(),
+        config=LakehouseConfig(),
+    )
+
+    pipeline.run()
+```
+
+---
+
+### `pensjon/lakehouse/pipeline.py`
+
+Orkestrerer hele kjøringen:
+
+```text
+setup lakehouse
+  ↓
+BronzeStage
+  ↓
+SilverStage
+  ↓
+GoldStage
+  ↓
+print filstruktur
+```
+
+---
+
+### `pensjon/lakehouse/stages/bronze_stage.py`
+
+Henter data fra repositories, lager Pandas DataFrames og skriver rådata til Bronze.
+
+---
+
+### `pensjon/lakehouse/stages/silver_stage.py`
+
+Kjører Silver-SQL:
+
+- `build_befolkning_pensjon.sql`
+- `build_befolkning_aldersgrupper.sql`
+- `build_naering_pensjon.sql`
+
+---
+
+### `pensjon/lakehouse/stages/gold_stage.py`
+
+Kjører Gold-SQL og printer forretningsklare analyser til terminalen:
+
+- toppliste kommuner med høyest andel 55+
+- næringer etter estimert pensjonsvolum
+- pensjonsandel-trend
+- aldersgruppefordeling
+- aldersgruppe-trend
+
+---
+
+### `pensjon/sql_loader.py`
+
+Laster SQL-filer fra `pensjon/sql/` og erstatter parametere som `$lake` og `$batch_id`.
+
+Eksempel:
+
+```python
+load_sql(
+    "silver/build_befolkning_pensjon.sql",
+    lake=self.lake,
+)
+```
+
+SQL-filene er vanlige `.sql`-filer, ikke Python-strenger.
 
 ---
 
 ## Kjøring
 
-### Forutsetninger
-
-- Python 3.11+
-- `pip install duckdb pandas requests`
-
-### Start
+### 1. Installer avhengigheter
 
 ```bash
-python3 main.py
+pip install duckdb pandas requests matplotlib jupyter
 ```
 
-Pipelinen henter data direkte fra SSBs API (krever internett), lander dem i `/tmp/pensjon_lakehouse/` som Parquet-filer, og printer analyseresultatene.
+Eller installer i prosjektets virtuelle miljø.
 
-### Forventet output
+---
 
+### 2. Kjør pipeline
+
+```bash
+python main.py
 ```
+
+Pipelinen henter data fra SSB, skriver Parquet-filer til `/tmp/pensjon_lakehouse/`, og printer analyseresultatene i terminalen.
+
+---
+
+### 3. Start notebook
+
+```bash
+jupyter notebook
+```
+
+Åpne:
+
+```text
+notebooks/01_pensjonsdemografi_og_pensjonsvolum.ipynb
+```
+
+Notebooken forventer at `python main.py` er kjørt først.
+
+---
+
+## Forventet terminal-output
+
+Eksempel på output:
+
+```text
 ================================================================
   PENSJON LAKEHOUSE
   SSB-data → Bronze → Silver → Gold
 ================================================================
 
+────────────────────────────────────────────────────────────────
   BRONZE – Henter data fra SSB
-  ✓ Befolkning: ~504 000 rader
-  ✓ Lønn/sysselsetting: ~72 rader
+────────────────────────────────────────────────────────────────
+  ✓ Befolkning: 504030 rader
+  ✓ Lønn/sysselsetting: 72 rader
 
+────────────────────────────────────────────────────────────────
   SILVER – Rensing og kobling
-  ✓ Befolkning pensjonsandel: ~1 783 rader (kommune × år)
-  ✓ Næring pensjonsvolum: ~72 rader
+────────────────────────────────────────────────────────────────
+  ✓ Befolkning pensjonsandel: 1783 rader (kommune × år)
+  ✓ Befolkning aldersgrupper: 38040 rader
+  ✓ Næring pensjonsvolum: 72 rader
 
+────────────────────────────────────────────────────────────────
   GOLD – Forretningsklare analyser
+────────────────────────────────────────────────────────────────
   Top 10 kommuner med høyest andel 55+
   Næringer etter estimert pensjonsvolum
-  Pensjonsandel-trend (landsgjennomsnitt)
+  Pensjonsandel-trend
+  Aldersgruppefordeling siste år
+  Aldersgruppe-trend
 
+────────────────────────────────────────────────────────────────
+  FILSTRUKTUR
+────────────────────────────────────────────────────────────────
+  pensjon_lakehouse/
+    │ _audit/  ← 1 json
+    │ bronze/
+    │ gold/    ← 6 parquet
+    │ silver/  ← 3 parquet
+
+================================================================
   ✓ Pipeline fullført
 ================================================================
 ```
+
+---
+
+## Notebook-rapport
+
+Notebooken visualiserer Gold-dataene med Matplotlib.
+
+Den viser blant annet:
+
+- gjennomsnittlig pensjonsandel 55+ over tid
+- kommuner med høyest andel 55+
+- aldersgruppefordeling nyeste år
+- aldersfordelingskurve nyeste år
+- endring i aldersgrupper fra første til siste år
+- seniorer 55+ per person i alderen 20–54
+- næringer med høyest estimert pensjonsvolum
+- lønnstakere og månedslønn per næring
+
+Rapporten leser kun fra Gold-laget:
+
+```text
+/tmp/pensjon_lakehouse/gold/*.parquet
+```
+
+---
+
+## Beregninger
+
+### Pensjonsandel 55+
+
+Pensjonsandel beregnes som:
+
+```text
+befolkning 55+ / total befolkning
+```
+
+Dette beregnes per kommune og år i Silver-laget, og aggregeres videre i Gold-laget.
+
+---
+
+### Aldersgrupper
+
+Befolkningen grupperes slik:
+
+| Aldersgruppe | Tolkning |
+|---|---|
+| `0-19` | Barn og unge |
+| `20-34` | Unge voksne |
+| `35-49` | Etablerte yrkesaktive |
+| `50-54` | Sen yrkesaktiv alder |
+| `55-61` | Senior yrkesaktiv |
+| `62-66` | Tidlig pensjonsalder |
+| `67-74` | Pensjonsalder |
+| `75+` | Eldre |
+
+---
+
+### Estimert pensjonsvolum
+
+Estimert pensjonsvolum beregnes som:
+
+```text
+lønnstakere × månedslønn × 12 × 0.02
+```
+
+Dette er en enkel modell for å anslå et mulig årlig pensjonsgrunnlag basert på 2 % innskudd.
 
 ---
 
@@ -125,61 +450,66 @@ Pipelinen henter data direkte fra SSBs API (krever internett), lander dem i `/tm
 
 | Teknologi | Rolle |
 |---|---|
-| [DuckDB](https://duckdb.org/) | Analytisk SQL-motor, in-process. Leser/skriver Parquet direkte |
-| [SSB PxWebApi](https://www.ssb.no/api) | Åpent API for alle 7 500+ tabeller i Statistikkbanken |
-| [Parquet](https://parquet.apache.org/) | Kolonnebasert filformat med ZSTD-komprimering |
-| [Pandas](https://pandas.pydata.org/) | Bro mellom Python-lister og DuckDB |
-| [JSON-stat2](https://json-stat.org/) | SSBs responsformat – egenutviklet parser i prosjektet |
+| DuckDB | Analytisk SQL-motor som leser og skriver Parquet |
+| Pandas | Mellomledd mellom Python-data og DuckDB |
+| Parquet | Kolonnebasert lagringsformat |
+| Matplotlib | Visualisering i notebook |
+| Jupyter Notebook | Rapportering og utforskende analyse |
+| Requests | HTTP-kall mot SSB |
+| JSON-stat2 | Responsformat fra SSB |
 
 ---
 
-## SSB API
+## Git og filer som ikke bør sjekkes inn
 
-SSBs PxWebApi (v1) bruker POST med JSON-body for å hente data. Spørringene definerer hvilke variabler, filtere og tidsperioder som skal hentes. Eksempel:
+Prosjektet bør ikke sjekke inn lokale cache-filer, virtuelle miljøer eller notebook checkpoints.
 
-```json
-{
-  "query": [
-    {"code": "NACE2007", "selection": {"filter": "all", "values": ["*"]}},
-    {"code": "ContentsCode", "selection": {"filter": "item", "values": ["Lonsstakere", "GjMdTotal"]}},
-    {"code": "Tid", "selection": {"filter": "top", "values": ["4"]}}
-  ],
-  "response": {"format": "json-stat2"}
-}
+Anbefalt `.gitignore`:
+
+```gitignore
+__pycache__/
+*.pyc
+.venv/
+.env
+.DS_Store
+
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+/tmp/
 ```
 
-Responsen er JSON-stat2, et kompakt format der verdiene er en flat array og dimensjonene beskrevet i metadata. `jsonstat_parser.py` konverterer dette til en liste av dicts.
-
-API-et er åpent, krever ingen registrering, og bruker CC BY 4.0-lisens.
+Parquet-filene i `/tmp/pensjon_lakehouse/` er genererte datafiler og skal ikke ligge i Git.
 
 ---
 
-## Kjente begrensninger og gjenstående arbeid
+## Kjente begrensninger
 
-### Må fikses
-
-- **Aldersgruppe-filtrering:** Pensjonsandel-beregningen i Silver gir 0 fordi aldersgruppe-labelene fra SSB ikke matcher hardkodede strenger (`'55-59'`, `'60-64'` osv.). Labelene fra API-et må sjekkes og filteret oppdateres.
-
-### Forbedringer
-
-- **Feilhåndtering:** Pipelinen stopper ved første feil. Bør ha try/catch per datakilde slik at resten av pipelinen kjører selv om én kilde feiler.
-- **Inkrementell innlasting:** Bronze overskriver alt ved hver kjøring. Bør støtte append med deduplisering.
-- **Tester:** Ingen tester ennå. Unit-tester for JSON-stat-parseren og repository-logikken bør legges til.
-- **Konfigurasjon:** Tabellnummer, filterverdier og Parquet-stier er hardkodet. Bør flyttes til en config-fil.
-
-### Mulige utvidelser
-
-- **Dashboard:** Koble Gold-tabellene til et Power BI-dashboard eller en interaktiv HTML-rapport.
-- **Flere datakilder:** Finans Norge har [markedsstatistikk for pensjon og sparing](https://www.finansnorge.no/tema/statistikk-og-analyse/pensjon-og-sparing/markedsstatistikk-pensjon-og-sparing/) med data om innskuddspensjon, fripoliser og OTP-satser per næring.
-- **Kobling befolkning × næring:** I dag er befolkningsdata på kommunenivå og næringsdata på nasjonalt nivå. SSBs sysselsettingsstatistikk per kommune (tabell 13470) kunne koble de to og gi pensjonsvolum-estimater per kommune × næring.
-- **SSB PxWebApi v2:** SSB lanserte v2 i oktober 2025 med støtte for GET-spørringer. Å migrere til v2 ville gjøre DataSource-laget mer likt GET-baserte API-klienter.
+- Pipelinen sletter og bygger `/tmp/pensjon_lakehouse/` på nytt ved hver kjøring.
+- Det finnes foreløpig ikke tester.
+- Feilhåndtering kan forbedres per datakilde.
+- Estimert pensjonsvolum er en forenklet beregning, ikke en faktisk forsikrings- eller pensjonsberegning.
+- Noen Gold-transformasjoner kan fortsatt forbedres slik at Gold-laget konsekvent kun bygger på Silver-laget.
 
 ---
 
-## Datakilder og lisens
+## Mulige forbedringer
 
-| Kilde | Lisens |
-|---|---|
-| [Statistisk sentralbyrå (SSB)](https://www.ssb.no/) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+- Legge til tester for JSON-stat-parser og SQL-transformasjoner.
+- Flytte hardkodede tabellvalg og stier til config.
+- Lage et eget `requirements.txt`.
+- Lage enkel CLI, for eksempel `python main.py --lake-path ...`.
+- Lage flere Gold-tabeller for kommune × næring dersom datagrunnlaget utvides.
+- Lage HTML-rapport eller dashboard basert på Gold-laget.
 
-Prosjektkoden er tilgjengelig for gjennomgang som porteføljeprosjekt.
+---
+
+## Lisens og datakilder
+
+Data hentes fra Statistisk sentralbyrås åpne API.
+
+Prosjektet er ment som et lærings- og porteføljeprosjekt.

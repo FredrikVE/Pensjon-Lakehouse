@@ -1,3 +1,4 @@
+#Pensjon-Lakehouse/pensjon/datasource/jsonstat_parser.py
 """
 Parser for JSON-stat2 format fra SSB.
 

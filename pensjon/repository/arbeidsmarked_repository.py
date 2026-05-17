@@ -1,3 +1,4 @@
+#Pensjon-Lakehouse/pensjon/repository/arbeidsmarked_repository.py
 """
 Repository for lønn og sysselsetting (tabell 11654).
 

@@ -21,6 +21,7 @@ class GoldStage:
         self._build_naering_pensjonsvolum()
         self._build_pensjonsandel_trend()
         self._build_aldersgruppe_fordeling_siste_ar()
+        self._build_aldersfordeling_siste_ar()
         self._build_aldersgruppe_trend()
 
     def _build_top_kommuner_pensjonsalder(self) -> None:
@@ -117,3 +118,13 @@ class GoldStage:
         ).fetchdf()
 
         print(result.to_string(index=False))
+
+
+    def _build_aldersfordeling_siste_ar(self) -> None:
+        self.db.execute(
+            load_sql(
+                "gold/build_aldersfordeling_siste_ar.sql",
+                lake=self.lake,
+            )
+        )
+        print("  ✓ Aldersfordeling siste år")
