@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# macOS
+.DS_Store
+
+# Local DuckDB database files
+*.duckdb
+*.duckdb.wal
+
+# Generated lakehouse exports
+exports/
