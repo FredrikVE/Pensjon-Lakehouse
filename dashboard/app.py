@@ -1,17 +1,9 @@
 # pensjon-lakehouse/dashboard/app.py
-"""
-Pensjon Lakehouse Dashboard
-
-Leser direkte fra Gold-laget i DuckDB.
-Kjør: streamlit run dashboard/app.py
-"""
-
 import streamlit as st
 import duckdb
 import plotly.express as px
 
 DB_PATH = "pensjon.duckdb"
-
 
 @st.cache_resource
 def get_db():
@@ -22,18 +14,21 @@ def query(sql: str):
     return get_db().execute(sql).fetchdf()
 
 
-# ─── Page config ────────────────────────────────────────────
+##########################
+# Page config           #
+#########################
 
 st.set_page_config(
     page_title="Pensjon Lakehouse",
-    page_icon="📊",
     layout="wide",
 )
 
-st.title("📊 Pensjon Lakehouse — Gold-laget")
+st.title("Pensjon Lakehouse — Gold-laget")
 st.caption("Analyser basert på SSB befolknings- og lønnsdata  ·  DuckDB Bronze → Silver → Gold")
 
-# ─── KPIs ───────────────────────────────────────────────────
+##########################
+# KPIs                  #
+#########################
 
 trend = query("SELECT * FROM gold.pensjonsandel_trend ORDER BY year")
 
@@ -58,11 +53,15 @@ if not trend.empty:
 
 st.divider()
 
-# ─── Layout: two columns ───────────────────────────────────
+#########################
+# Layout: two columns   #
+#########################
 
 left, right = st.columns(2)
 
-# ─── Pensjonsandel-trend ────────────────────────────────────
+#########################
+# Pensjonsandel-trend   #
+#########################
 
 with left:
     st.subheader("Pensjonsandel-trend (vektet nasjonalt)")
@@ -84,7 +83,9 @@ with left:
     )
     st.plotly_chart(fig_trend, use_container_width=True)
 
-# ─── Aldersgruppe-fordeling ─────────────────────────────────
+##########################
+# Aldersgruppe-fordeling #
+#########################
 
 with right:
     st.subheader("Aldersfordeling siste år")
@@ -113,7 +114,9 @@ st.divider()
 
 left2, right2 = st.columns(2)
 
-# ─── Top kommuner ──────────────────────────────────────────
+##########################
+# Top kommuner          #
+#########################
 
 with left2:
     st.subheader("Kommuner med høyest andel 55+")
@@ -148,7 +151,9 @@ with left2:
     fig_kommuner.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
     st.plotly_chart(fig_kommuner, use_container_width=True)
 
-# ─── Næringer etter pensjonsvolum ──────────────────────────
+################################
+# Næringer etter pensjonsvolum #
+###############################
 
 with right2:
     st.subheader("Næringer etter estimert pensjonsvolum")
@@ -184,7 +189,9 @@ with right2:
     fig_naering.update_traces(texttemplate="%{text:.1f} mrd", textposition="outside")
     st.plotly_chart(fig_naering, use_container_width=True)
 
-# ─── Aldersgruppe-trend ────────────────────────────────────
+##########################
+# Aldersgruppe-trend     #
+#########################
 
 st.divider()
 st.subheader("Aldersgruppe-trend over tid")
@@ -210,7 +217,9 @@ fig_ag.update_layout(
 )
 st.plotly_chart(fig_ag, use_container_width=True)
 
-# ─── Footer ────────────────────────────────────────────────
+##########################
+# Footer                #
+#########################
 
 st.divider()
 st.caption(
