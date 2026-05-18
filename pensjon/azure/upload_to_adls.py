@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pensjon.azure import DataLakeServiceClient
+from azure.storage.filedatalake import DataLakeServiceClient
 
 # Last .env fra prosjektroten
 load_dotenv()
