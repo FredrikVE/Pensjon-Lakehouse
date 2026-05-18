@@ -1,12 +1,7 @@
-#Pensjon-Lakehouse/main.py
-from pensjon.di.dependencies import Dependencies
-from pensjon.lakehouse.config import LakehouseConfig
+import sys
 from pensjon.lakehouse.pipeline import PensjonLakehousePipeline
 
 if __name__ == "__main__":
-    pipeline = PensjonLakehousePipeline(
-        deps=Dependencies(),
-        config=LakehouseConfig(),
-    )
-
+    use_testdata = "--testdata" in sys.argv
+    pipeline = PensjonLakehousePipeline(use_testdata=use_testdata)
     pipeline.run()

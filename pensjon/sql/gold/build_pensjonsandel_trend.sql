@@ -1,12 +1,20 @@
--- Pensjon-Lakehouse/pensjon/sql/gold/build_pensjonsandel_trend.sql
-COPY (
-    SELECT
-        year,
-        ROUND(AVG(pension_age_share) * 100, 2) AS snitt_pensjonsandel_pst,
-        SUM(pension_age_befolkning) AS total_55_pluss,
-        SUM(total_befolkning) AS total_befolkning
-    FROM read_parquet('$lake/silver/befolkning_pensjon.parquet')
-    GROUP BY year
-    ORDER BY year
-) TO '$lake/gold/pensjonsandel_trend.parquet'
-  (FORMAT PARQUET);
+-- Gold: Pensjonsandel-trend (vektet landsgjennomsnitt)
+--
+-- VIKTIG: Bruker SUM(55+) / SUM(total), IKKE AVG(andel).
+-- Et uvektet kommunesnitt ville gitt feil bilde fordi
+-- små kommuner ville veid like mye som store.
+
+CREATE OR REPLACE TABLE gold.pensjonsandel_trend AS
+SELECT
+    year,
+    SUM(pension_age_befolkning) AS total_55_pluss,
+    SUM(total_befolkning)       AS total_befolkning,
+    ROUND(
+        SUM(pension_age_befolkning)::FLOAT
+        / NULLIF(SUM(total_befolkning), 0)
+        * 100,
+        2
+    ) AS pensjonsandel_pst
+FROM silver.befolkning_pensjon
+GROUP BY year
+ORDER BY year;

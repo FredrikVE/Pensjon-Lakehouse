@@ -1,18 +1,14 @@
--- Pensjon-Lakehouse/pensjon/sql/gold/build_naering_pensjonsvolum.sql
-COPY (
-    SELECT
-        naering_code,
-        naering_label,
-        kvartal,
-        lonsstakere,
-        manedslonn,
-        estimert_pensjonsvolum
-    FROM read_parquet('$lake/silver/naering_pensjon.parquet')
-    WHERE kvartal = (
-        SELECT MAX(kvartal)
-        FROM read_parquet('$lake/silver/naering_pensjon.parquet')
-    )
-    AND estimert_pensjonsvolum IS NOT NULL
-    ORDER BY estimert_pensjonsvolum DESC
-) TO '$lake/gold/naering_pensjonsvolum.parquet'
-  (FORMAT PARQUET);
+-- Gold: Næringer med størst estimert pensjonsvolum (siste kvartal)
+
+CREATE OR REPLACE TABLE gold.naering_pensjonsvolum AS
+SELECT
+    naering_code,
+    naering_label,
+    kvartal,
+    lonsstakere,
+    manedslonn,
+    estimert_pensjonsvolum
+FROM silver.naering_pensjon
+WHERE kvartal = (SELECT MAX(kvartal) FROM silver.naering_pensjon)
+  AND estimert_pensjonsvolum IS NOT NULL
+ORDER BY estimert_pensjonsvolum DESC;

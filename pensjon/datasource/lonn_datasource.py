@@ -1,10 +1,5 @@
-#Pensjon-Lakehouse/pensjon/datasource/lonn_datasource.py
 """
 DataSource for SSB tabell 11654: Lønnstakere, jobber, lønn og lønnsindeks.
-
-Henter både antall lønnstakere og gjennomsnittlig månedslønn
-per næring (SN2007), kvartalsvis. Erstatter behovet for
-en separat sysselsettings-datakilde.
 """
 
 from pensjon.datasource.ssb_datasource import SSBDataSource
