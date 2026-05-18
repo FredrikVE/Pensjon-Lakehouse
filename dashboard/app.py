@@ -23,7 +23,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("Pensjon Lakehouse — Gold-laget")
+st.title("Pensjon Lakehouse")
 st.caption("Analyser basert på SSB befolknings- og lønnsdata  ·  DuckDB Bronze → Silver → Gold")
 
 ##########################
