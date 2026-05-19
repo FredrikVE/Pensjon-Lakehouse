@@ -24,7 +24,7 @@ Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
   </a>
 </p>
 
-
+### Screenshot av dashboard i Databricks
 
 ![Dashboard](docs/Dashboard.png)
 
