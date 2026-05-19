@@ -42,9 +42,25 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 - Hvordan utvikler denne andelen seg over tid?
 - Hvilke næringer har størst estimert pensjonsvolum?
 
+## Prosjektstruktur
+```
+Pensjon-Lakehouse/
+├── README.md
+├── index.html                          # Gjenskaping av Dashboard med GitHub Pages
+├── docs/
+└── notebooks/
+    ├── 01_bronze_ingest.ipynb
+    ├── 02_silver.ipynb
+    ├── 03_gold.ipynb
+    ├── 04_dashboard_setup.ipynb
+    ├── 05_generate_github_dashboard.ipynb
+    └── pensjon_dashboard.lvdash.json   # Databricks Lakeview dashboard-config (Vises visuelt i Databriks)
+```
+
 ## Arkitektur
 
 ![Arkitektur](docs/architecture.svg)
+
 
 ## Datakilder
 
@@ -52,6 +68,8 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 |-------|-----------|---------|
 | Befolkning | [07459](https://www.ssb.no/statbank/table/07459) | Befolkning etter alder og kommune |
 | Lønn/sysselsetting | [11654](https://www.ssb.no/statbank/table/11654) | Lønnstakere og månedslønn per næring |
+
+
 
 ## Lagdeling
 
@@ -82,11 +100,12 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 | 04 | `04_dashboard_setup` | SQL-spørringer og guide for Databricks-dashboardet |
 | 05 | `05_generate_github_dashboard` | Genererer statisk HTML-dashboard fra Gold-data |
 
-Kjør i rekkefølge: 01 → 02 → 03 → (04 og/eller 05).
 
 ## Kjøring
 
 Forutsetninger: Databricks workspace med Unity Catalog og tilgang til en SQL Warehouse eller cluster.
+
+**Kjør i rekkefølge:**
 
 1. Importer notebooks fra `notebooks/`-mappen
 2. Kjør `01_bronze_ingest` — henter data fra SSB og oppretter bronze-tabeller
@@ -96,30 +115,45 @@ Forutsetninger: Databricks workspace med Unity Catalog og tilgang til en SQL War
 
 ## Designvalg
 
-**Vektet nasjonalt gjennomsnitt.** Pensjonsandel-trend beregnes som `SUM(55+) / SUM(total)`, ikke `AVG(kommuneandeler)`. Et uvektet snitt ville gitt feil bilde fordi små kommuner ville veid like mye som store.
+**Vektet nasjonalt gjennomsnitt.** <br>
+Pensjonsandel-trend beregnes som `SUM(55+) / SUM(total)`, ikke `AVG(kommuneandeler)`. Et uvektet snitt ville gitt feil bilde fordi små kommuner ville veid like mye som store.
 
-**SQL eier transformasjonslogikken.** Python henter data og orkestrerer, men all rensing, kobling og aggregering skjer i SQL. Det gjør logikken transparent og enkel å endre.
+**SQL eier transformasjonslogikken.** <br>
+Python henter data og orkestrerer, men all rensing, kobling og aggregering skjer i SQL. Det gjør logikken transparent og enkel å endre.
 
-**Bronze er rå.** Bronze inneholder ufiltrert SSB-data med alle dimensjoner. Filtrering skjer først i Silver, slik at regler kan endres uten å hente data på nytt.
+**Bronze er rå.** <br>
+Bronze inneholder ufiltrert SSB-data med alle dimensjoner. Filtrering skjer først i Silver, slik at regler kan endres uten å hente data på nytt.
 
-**Estimert pensjonsvolum.** Beregnet som `lønnstakere × månedslønn × 12 × 2 % OTP` — en forenkling, men gir et relativt bilde av næringenes pensjonsrelevans.
+**Estimert pensjonsvolum.** <br> 
+Beregnet som `lønnstakere × månedslønn × 12 × 2 % OTP` — en forenkling, men gir et relativt bilde av næringenes pensjonsrelevans.
 
 ## Teknologier
 
-Python · SQL · Databricks · Unity Catalog · Delta Lake · Chart.js · GitHub Pages
-
-## Prosjektstruktur
-
-```
-Pensjon-Lakehouse/
-├── README.md
-├── index.html                          # GitHub Pages dashboard (generert)
-├── docs/
-└── notebooks/
-    ├── 01_bronze_ingest.ipynb
-    ├── 02_silver.ipynb
-    ├── 03_gold.ipynb
-    ├── 04_dashboard_setup.ipynb
-    ├── 05_generate_github_dashboard.ipynb
-    └── pensjon_dashboard.lvdash.json   # Databricks Lakeview dashboard-config
-```
+<table>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Python</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>SQL</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Databricks</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Azure</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Chart.js</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>GitHub Pages</td>
+    </tr>
+  </tbody>
+</table>
