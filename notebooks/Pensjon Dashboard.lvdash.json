@@ -5,7 +5,7 @@
       "displayName": "Alle kommuner",
       "config": {
         "version": 1.1,
-        "source": "SELECT\n  kommune_label AS kommune,\n  total_befolkning AS innbyggere,\n  pension_age_befolkning AS innbyggere_55_pluss,\n  ROUND(pension_age_share * 100, 1) AS andel_pst\nFROM pensjon_lakehouse.silver.befolkning_pensjon WHERE year = (SELECT MAX(year) FROM pensjon_lakehouse.silver.befolkning_pensjon) ORDER BY andel_pst DESC\n",
+        "source": "SELECT\n  kommune_label AS kommune,\n  total_befolkning AS innbyggere,\n  pension_age_befolkning AS innbyggere_55_pluss,\n  ROUND(pension_age_share * 100, 1) AS andel_pst\nFROM pensjon_lakehouse.gold.kommuner_pensjonsalder\nORDER BY andel_pst DESC\n",
         "dimensions": [
           {
             "name": "kommune",
@@ -109,7 +109,7 @@
       "displayName": "Top 10 kommuner",
       "config": {
         "version": 1.1,
-        "source": "SELECT\n  kommune_label AS kommune,\n  total_befolkning AS innbyggere,\n  pension_age_befolkning AS innbyggere_55_pluss,\n  ROUND(pension_age_share * 100, 1) AS andel_pst\nFROM pensjon_lakehouse.gold.top_kommuner_pensjonsalder ORDER BY andel_pst DESC LIMIT 10\n",
+        "source": "SELECT\n  kommune_label AS kommune,\n  total_befolkning AS innbyggere,\n  pension_age_befolkning AS innbyggere_55_pluss,\n  ROUND(pension_age_share * 100, 1) AS andel_pst\nFROM pensjon_lakehouse.gold.top_kommuner_pensjonsalder\nORDER BY andel_pst DESC\nLIMIT 10\n",
         "dimensions": [
           {
             "name": "kommune",
@@ -319,7 +319,7 @@
         "  total_55_pluss,\n",
         "  total_befolkning\n",
         "FROM\n",
-        "  pensjonsandel_trend\n",
+        "  pensjon_lakehouse.gold.pensjonsandel_trend\n",
         "ORDER BY\n",
         "  year DESC\n",
         "LIMIT 1"
