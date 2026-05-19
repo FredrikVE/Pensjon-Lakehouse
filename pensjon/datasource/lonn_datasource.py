@@ -4,13 +4,12 @@ DataSource for SSB tabell 11654: Lønnstakere, jobber, lønn og lønnsindeks.
 
 from pensjon.datasource.ssb_datasource import SSBDataSource
 
-
 class LonnSysselsettingDataSource(SSBDataSource):
     """Henter lønn og sysselsetting per næring fra SSB tabell 11654."""
 
     TABLE_ID = "11654"
 
-    def fetch(self, quarters: list[str] | None = None) -> dict:
+    def fetch(self, quarters: list[str]) -> dict:
         """
         Hent antall lønnstakere og gjennomsnittlig månedslønn per næring.
 

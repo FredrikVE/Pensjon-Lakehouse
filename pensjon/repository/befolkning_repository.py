@@ -10,14 +10,13 @@ from __future__ import annotations
 from pensjon.datasource.befolkning_datasource import BefolkningDataSource
 from pensjon.datasource.jsonstat_parser import parse_jsonstat2
 
-
 class BefolkningRepository:
     """Henter og parser befolkningsdata."""
 
     def __init__(self, datasource: BefolkningDataSource):
         self._datasource = datasource
 
-    def get_raw(self, years: list[str] | None = None) -> list[dict]:
+    def get_raw(self, years: list[str]) -> list[dict]:
         """
         Hent alle befolkningsrader uten filtrering.
 

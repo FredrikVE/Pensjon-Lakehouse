@@ -10,7 +10,7 @@ class BefolkningDataSource(SSBDataSource):
 
     TABLE_ID = "07459"
 
-    def fetch(self, years: list[str] | None = None) -> dict:
+    def fetch(self, years: list[str]) -> dict:
         """
         Hent befolkning per enkeltårs-alder, alle kommuner, begge kjønn.
 

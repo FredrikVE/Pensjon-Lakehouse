@@ -17,7 +17,7 @@ class LonnSysselsettingRepository:
     def __init__(self, datasource: LonnSysselsettingDataSource):
         self._datasource = datasource
 
-    def get_raw(self, quarters: list[str] | None = None) -> list[dict]:
+    def get_raw(self, quarters: list[str]) -> list[dict]:
         """
         Hent alle rader uten pivotering eller filtrering.
 

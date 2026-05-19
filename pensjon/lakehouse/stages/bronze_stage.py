@@ -14,14 +14,8 @@ from pensjon.repository.befolkning_repository import BefolkningRepository
 from pensjon.repository.lonn_repository import LonnSysselsettingRepository
 from pensjon.sql_loader import load_sql
 
-
 class BronzeStage:
-    def __init__(
-        self,
-        befolkning_repo: BefolkningRepository,
-        lonn_repo: LonnSysselsettingRepository,
-        db: duckdb.DuckDBPyConnection,
-    ):
+    def __init__(self, befolkning_repo: BefolkningRepository, lonn_repo: LonnSysselsettingRepository, db: duckdb.DuckDBPyConnection):
         self.befolkning_repo = befolkning_repo
         self.lonn_repo = lonn_repo
         self.db = db

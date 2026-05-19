@@ -7,7 +7,6 @@ Dimensjonene beskrives i metadata, og vi folder ut arrayen til rader.
 
 from __future__ import annotations
 
-
 def parse_jsonstat2(response: dict) -> list[dict]:
     """
     Konverter en JSON-stat2 response til en liste av rader.
