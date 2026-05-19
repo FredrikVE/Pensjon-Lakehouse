@@ -18,15 +18,16 @@ Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
 
 ## Dashboard
 
-![Dashboard](docs/Dashboard.png)
-
-### Trykk her for å se Dashboardet
-
 <p align="center">
   <a href="https://fredrikve.github.io/Pensjon-Lakehouse/">
     <img src="docs/dashboard_button.svg" alt="Åpne live dashboard">
   </a>
 </p>
+
+
+
+![Dashboard](docs/Dashboard.png)
+
 
 
 
