@@ -1,0 +1,819 @@
+{
+  "datasets": [
+    {
+      "name": "kommuner_detalj",
+      "displayName": "Alle kommuner",
+      "config": {
+        "version": 1.1,
+        "source": "SELECT\n  kommune_label AS kommune,\n  total_befolkning AS innbyggere,\n  pension_age_befolkning AS innbyggere_55_pluss,\n  ROUND(pension_age_share * 100, 1) AS andel_pst\nFROM pensjon_lakehouse.silver.befolkning_pensjon WHERE year = (SELECT MAX(year) FROM pensjon_lakehouse.silver.befolkning_pensjon) ORDER BY andel_pst DESC\n",
+        "dimensions": [
+          {
+            "name": "kommune",
+            "expr": "kommune",
+            "displayName": "Kommune"
+          }
+        ],
+        "measures": [
+          {
+            "name": "innbyggere",
+            "expr": "SUM(innbyggere)",
+            "displayName": "Innbyggere",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "innbyggere_55_pluss",
+            "expr": "SUM(innbyggere_55_pluss)",
+            "displayName": "Innbyggere 55+",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "andel_pst",
+            "expr": "MAX(andel_pst)",
+            "displayName": "Andel 55+",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "aldersgruppe_trend",
+      "displayName": "Aldersgruppe trend",
+      "config": {
+        "version": 1.1,
+        "source": "pensjon_lakehouse.gold.aldersgruppe_trend",
+        "dimensions": [
+          {
+            "name": "year",
+            "expr": "CAST(year AS INT)",
+            "displayName": "År"
+          },
+          {
+            "name": "aldersgruppe",
+            "expr": "aldersgruppe",
+            "displayName": "Aldersgruppe"
+          },
+          {
+            "name": "aldersgruppe_sortering",
+            "expr": "aldersgruppe_sortering",
+            "displayName": "Sortering"
+          }
+        ],
+        "measures": [
+          {
+            "name": "andel",
+            "expr": "MAX(andel)",
+            "displayName": "Andel",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          },
+          {
+            "name": "befolkning",
+            "expr": "SUM(befolkning)",
+            "displayName": "Befolkning",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "top_kommuner",
+      "displayName": "Top 10 kommuner",
+      "config": {
+        "version": 1.1,
+        "source": "SELECT\n  kommune_label AS kommune,\n  total_befolkning AS innbyggere,\n  pension_age_befolkning AS innbyggere_55_pluss,\n  ROUND(pension_age_share * 100, 1) AS andel_pst\nFROM pensjon_lakehouse.gold.top_kommuner_pensjonsalder ORDER BY andel_pst DESC LIMIT 10\n",
+        "dimensions": [
+          {
+            "name": "kommune",
+            "expr": "kommune",
+            "displayName": "Kommune"
+          }
+        ],
+        "measures": [
+          {
+            "name": "innbyggere",
+            "expr": "SUM(innbyggere)",
+            "displayName": "Innbyggere",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "innbyggere_55_pluss",
+            "expr": "SUM(innbyggere_55_pluss)",
+            "displayName": "Innbyggere 55+",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "andel_pst",
+            "expr": "MAX(andel_pst)",
+            "displayName": "Andel 55+",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "top_naeringer",
+      "displayName": "Top 10 næringer",
+      "config": {
+        "version": 1.1,
+        "source": "SELECT\n  naering_label AS naering,\n  lonsstakere,\n  manedslonn,\n  ROUND(estimert_pensjonsvolum / 1e9, 2) AS volum_mrd\nFROM pensjon_lakehouse.gold.naering_pensjonsvolum WHERE naering_label != 'Alle næringer' ORDER BY volum_mrd DESC LIMIT 10\n",
+        "dimensions": [
+          {
+            "name": "naering",
+            "expr": "naering",
+            "displayName": "Næring"
+          }
+        ],
+        "measures": [
+          {
+            "name": "lonsstakere",
+            "expr": "SUM(lonsstakere)",
+            "displayName": "Lønnstakere",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "manedslonn",
+            "expr": "SUM(manedslonn)",
+            "displayName": "Månedslønn",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "volum_mrd",
+            "expr": "MAX(volum_mrd)",
+            "displayName": "Pensjonsvolum (mrd kr)",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "aldersfordeling",
+      "displayName": "Aldersfordeling",
+      "config": {
+        "version": 1.1,
+        "source": "pensjon_lakehouse.gold.aldersgruppe_fordeling",
+        "dimensions": [
+          {
+            "name": "aldersgruppe",
+            "expr": "aldersgruppe",
+            "displayName": "Aldersgruppe"
+          },
+          {
+            "name": "aldersgruppe_sortering",
+            "expr": "aldersgruppe_sortering",
+            "displayName": "Sortering"
+          }
+        ],
+        "measures": [
+          {
+            "name": "befolkning",
+            "expr": "SUM(befolkning)",
+            "displayName": "Befolkning",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "andel",
+            "expr": "MAX(andel)",
+            "displayName": "Andel",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "pensjonsandel_trend",
+      "displayName": "Pensjonsandel trend",
+      "config": {
+        "version": 1.1,
+        "source": "pensjon_lakehouse.gold.pensjonsandel_trend",
+        "dimensions": [
+          {
+            "name": "year",
+            "expr": "CAST(year AS INT)",
+            "displayName": "År"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_55_pluss",
+            "expr": "SUM(total_55_pluss)",
+            "displayName": "Totalt 55+",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "total_befolkning",
+            "expr": "SUM(total_befolkning)",
+            "displayName": "Total befolkning",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "pensjonsandel_pst",
+            "expr": "MAX(pensjonsandel_pst)",
+            "displayName": "Pensjonsandel",
+            "format": {
+              "type": "number",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "5fd70ae4",
+      "displayName": "Oversikt",
+      "layout": [
+        {
+          "widget": {
+            "name": "counter_pensjonsandel",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "pensjonsandel_trend",
+                  "fields": [
+                    {
+                      "name": "measure(pensjonsandel_pst)",
+                      "expression": "MEASURE(`pensjonsandel_pst`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Pensjonsandel",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(pensjonsandel_pst)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_total_55",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "pensjonsandel_trend",
+                  "fields": [
+                    {
+                      "name": "measure(total_55_pluss)",
+                      "expression": "MEASURE(`total_55_pluss`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Innbyggere 55+",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_55_pluss)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_total_befolkning",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "pensjonsandel_trend",
+                  "fields": [
+                    {
+                      "name": "measure(total_befolkning)",
+                      "expression": "MEASURE(`total_befolkning`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Befolkning",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_befolkning)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "line_pensjonsandel_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "pensjonsandel_trend",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "measure(pensjonsandel_pst)",
+                      "expression": "MEASURE(`pensjonsandel_pst`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Pensjonsandel over tid",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(pensjonsandel_pst)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_aldersfordeling",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "aldersfordeling",
+                  "fields": [
+                    {
+                      "name": "aldersgruppe",
+                      "expression": "`aldersgruppe`"
+                    },
+                    {
+                      "name": "measure(befolkning)",
+                      "expression": "MEASURE(`befolkning`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Aldersfordeling",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "aldersgruppe",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(befolkning)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "hbar_top_kommuner",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_kommuner",
+                  "fields": [
+                    {
+                      "name": "measure(andel_pst)",
+                      "expression": "MEASURE(`andel_pst`)"
+                    },
+                    {
+                      "name": "kommune",
+                      "expression": "`kommune`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Kommuner",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(andel_pst)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "kommune",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "hbar_top_naeringer",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_naeringer",
+                  "fields": [
+                    {
+                      "name": "measure(volum_mrd)",
+                      "expression": "MEASURE(`volum_mrd`)"
+                    },
+                    {
+                      "name": "naering",
+                      "expression": "`naering`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Næringer",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(volum_mrd)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "naering",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 8,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "area_aldersgruppe_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "aldersgruppe_trend",
+                  "fields": [
+                    {
+                      "name": "aldersgruppe",
+                      "expression": "`aldersgruppe`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "measure(andel)",
+                      "expression": "MEASURE(`andel`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Aldersgrupper over tid",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "area",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(andel)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "aldersgruppe",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 12,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "table_kommuner_detalj",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kommuner_detalj",
+                  "fields": [
+                    {
+                      "name": "kommune",
+                      "expression": "`kommune`"
+                    },
+                    {
+                      "name": "measure(innbyggere)",
+                      "expression": "MEASURE(`innbyggere`)"
+                    },
+                    {
+                      "name": "measure(innbyggere_55_pluss)",
+                      "expression": "MEASURE(`innbyggere_55_pluss`)"
+                    },
+                    {
+                      "name": "measure(andel_pst)",
+                      "expression": "MEASURE(`andel_pst`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "rowsPerPage": 20,
+              "frame": {
+                "title": "Kommune Detaljer",
+                "showTitle": true
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "kommune"
+                  },
+                  {
+                    "fieldName": "measure(innbyggere)"
+                  },
+                  {
+                    "fieldName": "measure(innbyggere_55_pluss)"
+                  },
+                  {
+                    "fieldName": "measure(andel_pst)"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#0F172A",
+        "dark": "#0F172A"
+      },
+      "widgetBackgroundColor": {
+        "light": "#111827",
+        "dark": "#111827"
+      },
+      "widgetBorderColor": {
+        "light": "#334155",
+        "dark": "#334155"
+      },
+      "fontColor": {
+        "light": "#E5E7EB",
+        "dark": "#E5E7EB"
+      },
+      "selectionColor": {
+        "light": "#38BDF8",
+        "dark": "#38BDF8"
+      },
+      "visualizationColors": [
+        "#38BDF8",
+        "#22C55E",
+        "#F59E0B",
+        "#A78BFA",
+        "#F43F5E",
+        "#14B8A6",
+        "#F97316",
+        "#EAB308"
+      ],
+      "widgetHeaderAlignment": "LEFT",
+      "fontFamily": "Trebuchet MS"
+    },
+    "applyModeEnabled": false
+  }
+}
