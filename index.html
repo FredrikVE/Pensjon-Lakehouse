@@ -334,7 +334,7 @@
     </div>
 
     <div class="footer">
-        Generert 2026-05-19 13:50 &middot; Data: <a href="https://www.ssb.no/statbank/table/07459" target="_blank">SSB 07459</a> +
+        Generert 2026-05-19 15:26 &middot; Data: <a href="https://www.ssb.no/statbank/table/07459" target="_blank">SSB 07459</a> +
         <a href="https://www.ssb.no/statbank/table/11654" target="_blank">SSB 11654</a> &middot;
         <a href="https://github.com/FredrikVE/Pensjon-Lakehouse" target="_blank">FredrikVE/Pensjon-Lakehouse</a>
     </div>
@@ -376,8 +376,15 @@ new Chart(document.getElementById('chartTrend'), {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
+        
             x: { grid: { display: false } },
-            y: { ticks: { callback: v => v + '%' } }
+            
+            y: { 
+                ticks: { 
+                    precision: 1,
+                    callback: v => Number(v).toFixed(1) + '%'
+                }
+            }
         }
     }
 });
