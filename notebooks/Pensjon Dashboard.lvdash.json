@@ -308,6 +308,24 @@
           }
         ]
       }
+    },
+    {
+      "name": "pensjonsandel_latest",
+      "displayName": "Pensjonsandel Siste År KPI",
+      "queryLines": [
+        "SELECT\n",
+        "  year,\n",
+        "  pensjonsandel_pst,\n",
+        "  total_55_pluss,\n",
+        "  total_befolkning\n",
+        "FROM\n",
+        "  pensjonsandel_trend\n",
+        "ORDER BY\n",
+        "  year DESC\n",
+        "LIMIT 1"
+      ],
+      "catalog": "pensjon_lakehouse",
+      "schema": "gold"
     }
   ],
   "pages": [
@@ -322,14 +340,14 @@
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "pensjonsandel_trend",
+                  "datasetName": "pensjonsandel_latest",
                   "fields": [
                     {
-                      "name": "measure(pensjonsandel_pst)",
-                      "expression": "MEASURE(`pensjonsandel_pst`)"
+                      "name": "pensjonsandel_pst",
+                      "expression": "`pensjonsandel_pst`"
                     }
                   ],
-                  "disaggregated": false
+                  "disaggregated": true
                 }
               }
             ],
@@ -342,7 +360,8 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "measure(pensjonsandel_pst)"
+                  "fieldName": "pensjonsandel_pst",
+                  "displayName": "Pensjonsandel"
                 }
               }
             }
@@ -361,14 +380,14 @@
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "pensjonsandel_trend",
+                  "datasetName": "pensjonsandel_latest",
                   "fields": [
                     {
-                      "name": "measure(total_55_pluss)",
-                      "expression": "MEASURE(`total_55_pluss`)"
+                      "name": "total_55_pluss",
+                      "expression": "`total_55_pluss`"
                     }
                   ],
-                  "disaggregated": false
+                  "disaggregated": true
                 }
               }
             ],
@@ -381,7 +400,8 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "measure(total_55_pluss)"
+                  "fieldName": "total_55_pluss",
+                  "displayName": "Totalt 55+"
                 }
               }
             }
@@ -400,14 +420,14 @@
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "pensjonsandel_trend",
+                  "datasetName": "pensjonsandel_latest",
                   "fields": [
                     {
-                      "name": "measure(total_befolkning)",
-                      "expression": "MEASURE(`total_befolkning`)"
+                      "name": "total_befolkning",
+                      "expression": "`total_befolkning`"
                     }
                   ],
-                  "disaggregated": false
+                  "disaggregated": true
                 }
               }
             ],
@@ -420,7 +440,8 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "measure(total_befolkning)"
+                  "fieldName": "total_befolkning",
+                  "displayName": "Total befolkning"
                 }
               }
             }
