@@ -1,6 +1,18 @@
 # Pensjon Lakehouse
 
-Et lakehouse-prosjekt for pensjonsanalyse i Norge. Henter åpne data fra SSB, modellerer gjennom Bronze → Silver → Gold i Databricks med Unity Catalog, og visualiserer resultatet i et interaktivt dashboard.
+Et Databricks, Python, SQL og Git-prosjekt for å lære å enke "Lakehouse-arkitektur" i skymiljø i form av Azure.
+
+Lakehouse-prosjekt for foretar en enkel alalyse av aldersfordelingen i Norske kommuner for å undersøke hvor "eldrebølgen" 
+er mest fremtredende, og dermed risikoen for et tenkt forsikrings-selskap.
+
+Prosjektet henter åpne data fra SSB, og "foredler" og modellerer disse gjennom følgende arkitkekturlag.
+
+1) Bronze
+2) Silver
+3) Gold
+
+Og lagrer disse dataene på "gold-format" i Databricks med Unity Catalog. 
+Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
 
 **[Live Dashboard →](https://fredrikve.github.io/Pensjon-Lakehouse/)**
 
@@ -45,21 +57,7 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 
 ## Dashboard
 
-```
-┌──────────────────┬──────────────────┬──────────────────┐
-│  Pensjonsandel   │   Totalt 55+     │ Total befolkning │
-├──────────────────┴─────────┬────────┴──────────────────┤
-│  Pensjonsandel-trend       │  Aldersfordeling          │
-│  (linjegraf)               │  (søylediagram)           │
-├────────────────────────────┼───────────────────────────┤
-│  Top 10 kommuner           │  Top 10 næringer          │
-│  (horisontale søyler)      │  (horisontale søyler)     │
-├────────────────────────────┴───────────────────────────┤
-│  Aldersgruppe-trend over tid (stacked area)            │
-├────────────────────────────────────────────────────────┤
-│  Detailtabell — alle kommuner (søkbar, sorterbar)      │
-└────────────────────────────────────────────────────────┘
-```
+![Dashboard](docs/Dashboard.png)
 
 Finnes i to versjoner: som Databricks SQL Dashboard (Lakeview) og som statisk HTML for GitHub Pages.
 
