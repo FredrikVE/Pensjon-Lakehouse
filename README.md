@@ -15,7 +15,12 @@ Prosjektet henter åpne data fra SSB, og "foredler" og modellerer disse gjennom 
 Og lagrer disse dataene på "gold-format" i Databricks med Unity Catalog. 
 Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
 
-## Trykk her for å se Dashboardet
+
+## Dashboard
+
+![Dashboard](docs/Dashboard.png)
+
+### Trykk her for å se Dashboardet
 
 <p align="center">
   <a href="https://fredrikve.github.io/Pensjon-Lakehouse/">
@@ -23,11 +28,7 @@ Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
   </a>
 </p>
 
-## Dashboard
 
-![Dashboard](docs/Dashboard.png)
-
-Finnes i to versjoner: som Databricks SQL Dashboard (Lakeview) og som statisk HTML for GitHub Pages.
 
 
 ## Problemstilling
