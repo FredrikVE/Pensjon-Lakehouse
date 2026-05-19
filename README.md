@@ -1,15 +1,5 @@
 # Pensjon Lakehouse
 
-
-## Trykk her for å se Dashboardet
-
-<p align="center">
-  <a href="https://fredrikve.github.io/Pensjon-Lakehouse/">
-    <img src="docs/dashboard_button.svg" alt="Åpne live dashboard">
-  </a>
-</p>
-
-
 ## Om prosjektet
 Et Databricks, Python, SQL og Git-prosjekt for å lære å enke "Lakehouse-arkitektur" i skymiljø i form av Azure.
 
@@ -24,6 +14,20 @@ Prosjektet henter åpne data fra SSB, og "foredler" og modellerer disse gjennom 
 
 Og lagrer disse dataene på "gold-format" i Databricks med Unity Catalog. 
 Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
+
+## Trykk her for å se Dashboardet
+
+<p align="center">
+  <a href="https://fredrikve.github.io/Pensjon-Lakehouse/">
+    <img src="docs/dashboard_button.svg" alt="Åpne live dashboard">
+  </a>
+</p>
+
+## Dashboard
+
+![Dashboard](docs/Dashboard.png)
+
+Finnes i to versjoner: som Databricks SQL Dashboard (Lakeview) og som statisk HTML for GitHub Pages.
 
 
 ## Problemstilling
@@ -65,11 +69,6 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 | `aldersgruppe_fordeling` | Fordeling på 8 aldersgrupper, siste år |
 | `aldersgruppe_trend` | Aldersgruppe-andeler over tid |
 
-## Dashboard
-
-![Dashboard](docs/Dashboard.png)
-
-Finnes i to versjoner: som Databricks SQL Dashboard (Lakeview) og som statisk HTML for GitHub Pages.
 
 ## Notebooks
 
