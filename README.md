@@ -148,15 +148,36 @@ Pensjon-Lakehouse/
 
 Prosjektet har en tydelig separasjon mellom Databricks-logikk, SQL, frontend og genererte filer:
 
-`notebooks/` inneholder Databricks-notebookene som kjører pipelinen (01–04) og genererer dashboardet (05). Notebookene eier ingen SQL eller HTML direkte — all transformasjonslogikk og template-innhold leses fra eksterne filer.
-
-`sql/github_dashboard/` inneholder SQL-spørringene som notebook 05 bruker for å hente data fra Gold-tabellene i Unity Catalog. Template-variabler (`$catalog`, `$schema`) substitueres ved kjøring.
-
-`templates/` inneholder HTML-templaten for GitHub Pages-dashboardet. KPI-plassholdere (`$kpi_year`, `$kpi_pensjonsandel` osv.) fylles inn av notebook 05.
-
-`assets/` inneholder CSS og JavaScript for det statiske dashboardet. `data.js` genereres av notebook 05, resten er håndskrevne frontend-filer.
-
-`dashboards/` inneholder Databricks Lakeview-konfigurasjonen som vises visuelt i Databricks-workspacen.
+<table>
+  <thead>
+    <tr>
+      <th>Mappe</th>
+      <th>Innhold</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>notebooks/</code></td>
+      <td>Databricks-notebookene som kjører pipelinen (01–04) og genererer dashboardet (05). Notebookene eier ingen SQL eller HTML direkte — all transformasjonslogikk og template-innhold leses fra eksterne filer.</td>
+    </tr>
+    <tr>
+      <td><code>sql/github_dashboard/</code></td>
+      <td>SQL-spørringene som notebook 05 bruker for å hente data fra Gold-tabellene i Unity Catalog. Template-variabler (<code>$catalog</code>, <code>$schema</code>) substitueres ved kjøring.</td>
+    </tr>
+    <tr>
+      <td><code>templates/</code></td>
+      <td>HTML-templaten for GitHub Pages-dashboardet. KPI-plassholdere (<code>$kpi_year</code>, <code>$kpi_pensjonsandel</code> osv.) fylles inn av notebook 05.</td>
+    </tr>
+    <tr>
+      <td><code>assets/</code></td>
+      <td>CSS og JavaScript for det statiske dashboardet. <code>data.js</code> genereres av notebook 05, resten er håndskrevne frontend-filer.</td>
+    </tr>
+    <tr>
+      <td><code>dashboards/</code></td>
+      <td>Databricks Lakeview-konfigurasjonen som vises visuelt i Databricks-workspacen.</td>
+    </tr>
+  </tbody>
+</table>
 
 
 ## Designvalg
