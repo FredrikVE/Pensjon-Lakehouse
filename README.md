@@ -111,7 +111,48 @@ Forutsetninger: Databricks workspace med Unity Catalog og tilgang til en SQL War
 2. Kjør `01_bronze_ingest` — henter data fra SSB og oppretter bronze-tabeller
 3. Kjør `02_silver` — bygger silver-tabeller
 4. Kjør `03_gold` — bygger gold-tabeller
-5. Kjør `05_generate_github_dashboard` — genererer `index.html` for GitHub Pages
+
+## Forklaring av mappestruktur
+
+De mest relevante og interessante filene for dette prosjektet finne du i denne delen av filstrukturen.
+
+```bash
+.
+├── README.md
+├── assets                        -> ting som har med styling av html/css for github-showcase tabell å gjøre
+├── docs                          -> Bilder og dokumentasjon
+├── index.html                    -> filen som kjører showcasen av tabellen inne i README
+├── notebooks                     -> Her er Databricks notebookene
+│   ├── 01_bronze_ingest.ipynb
+│   ├── 02_silver.ipynb
+│   ├── 03_gold.ipynb
+│   ├── 04_dashboard_setup.ipynb
+│   ├── 05_generate_github_dashboard.ipynb
+│   └── Pensjon Dashboard.lvdash.json
+└── robots.txt
+```
+
+Men for deg som er ekstra interessert, så ligger formateringen av den HTML/JavaScript/CSS-baserte
+showcase tabellen som det linkes til øverst i README-filen igjennom GitHub-pages i denne delen av mappestrukturen.
+
+
+```bash
+index.html
+assets/
+├── css/
+│   ├── main.css
+│   ├── tokens.css
+│   ├── base.css
+│   ├── layout.css
+│   ├── components.css
+│   ├── table.css
+│   └── responsive.css
+└── js/
+    ├── data.js
+    ├── charts.js
+    ├── table.js
+    └── main.js
+```
 
 ## Designvalg
 

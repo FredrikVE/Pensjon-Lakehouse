@@ -1,0 +1,32 @@
+.dashboard {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-gap);
+    margin-bottom: var(--space-gap);
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-gap);
+    margin-bottom: var(--space-gap);
+}
+
+.grid-1 {
+    margin-bottom: var(--space-gap);
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.chart-container-wide {
+    position: relative;
+    height: 350px;
+}
