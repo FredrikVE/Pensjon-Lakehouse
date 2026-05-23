@@ -1,0 +1,18 @@
+@media (max-width: 768px) {
+    :root {
+        --space-page: 12px;
+    }
+
+    .kpi-row,
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-card .value {
+        font-size: 24px;
+    }
+
+    .search-box input {
+        width: 100%;
+    }
+}

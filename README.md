@@ -1,19 +1,12 @@
 # Pensjon Lakehouse
 
 ## Om prosjektet
-Et Databricks, Python, SQL og Git-prosjekt for å lære å enke "Lakehouse-arkitektur" i skymiljø i form av Azure.
 
-Lakehouse-prosjekt for foretar en enkel alalyse av aldersfordelingen i Norske kommuner for å undersøke hvor "eldrebølgen" 
-er mest fremtredende, og dermed risikoen for et tenkt forsikrings-selskap.
+Et Databricks, Python, SQL og Git-prosjekt for å lære å tenke "Lakehouse-arkitektur" i skymiljø i form av Azure.
 
-Prosjektet henter åpne data fra SSB, og "foredler" og modellerer disse gjennom følgende arkitkekturlag.
+Prosjektet foretar en enkel analyse av aldersfordelingen i norske kommuner for å undersøke hvor "eldrebølgen" er mest fremtredende, og dermed risikoen for et tenkt forsikringsselskap.
 
-1) Bronze
-2) Silver
-3) Gold
-
-Og lagrer disse dataene på "gold-format" i Databricks med Unity Catalog. 
-Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
+Data hentes fra SSBs åpne API og foredles gjennom lagene Bronze → Silver → Gold i Databricks med Unity Catalog. Resultatet visualiseres i et interaktivt Databricks-dashboard og publiseres som statisk GitHub Pages-side.
 
 
 ## Dashboard
@@ -29,9 +22,6 @@ Deretter visualiseres resultatet i et interaktivt Databricks dashboard.
 ![Dashboard](docs/Dashboard.png)
 
 
-
-
-
 ## Problemstilling
 
 Hvilke kommuner og næringer har størst demografisk pensjonsrelevans i Norge?
@@ -42,20 +32,6 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 - Hvordan utvikler denne andelen seg over tid?
 - Hvilke næringer har størst estimert pensjonsvolum?
 
-## Prosjektstruktur
-```
-Pensjon-Lakehouse/
-├── README.md
-├── index.html                          # Gjenskaping av Dashboard med GitHub Pages
-├── docs/
-└── notebooks/
-    ├── 01_bronze_ingest.ipynb
-    ├── 02_silver.ipynb
-    ├── 03_gold.ipynb
-    ├── 04_dashboard_setup.ipynb
-    ├── 05_generate_github_dashboard.ipynb
-    └── pensjon_dashboard.lvdash.json   # Databricks Lakeview dashboard-config (Vises visuelt i Databriks)
-```
 
 ## Arkitektur
 
@@ -70,14 +46,14 @@ Pensjon-Lakehouse/
 | Lønn/sysselsetting | [11654](https://www.ssb.no/statbank/table/11654) | Lønnstakere og månedslønn per næring |
 
 
-
 ## Lagdeling
 
 | Lag | Innhold | Prinsipp |
 |-----|---------|----------|
-| **Bronze** | Rå SSB-data, alle dimensjoner, metadata (_ingest_ts, _source, _batch_id) | Ufiltrert, reproduserbar |
+| **Bronze** | Rå SSB-data, alle dimensjoner, metadata (`_ingest_ts`, `_source`, `_batch_id`) | Ufiltrert, reproduserbar |
 | **Silver** | Filtrert til kommuner, renset alder, pivotering, pensjonsandel | Renset, koblet |
 | **Gold** | Trender, topp-kommuner, næringsprofil, aldersfordeling | Forretningsklart |
+
 
 ## Gold-tabeller
 
@@ -111,7 +87,98 @@ Forutsetninger: Databricks workspace med Unity Catalog og tilgang til en SQL War
 2. Kjør `01_bronze_ingest` — henter data fra SSB og oppretter bronze-tabeller
 3. Kjør `02_silver` — bygger silver-tabeller
 4. Kjør `03_gold` — bygger gold-tabeller
-5. Kjør `05_generate_github_dashboard` — genererer `index.html` for GitHub Pages
+5. Kjør `05_generate_github_dashboard` — genererer `index.html` og `data.js` fra Gold-data
+
+
+## Prosjektstruktur
+
+```bash
+Pensjon-Lakehouse/
+├── README.md
+├── index.html                                -> GitHub Pages dashboard (generert)
+├── robots.txt
+│
+├── assets/                                   -> Frontend for GitHub Pages
+│   ├── css/
+│   │   ├── main.css
+│   │   ├── tokens.css
+│   │   ├── base.css
+│   │   ├── layout.css
+│   │   ├── components.css
+│   │   ├── table.css
+│   │   └── responsive.css
+│   └── js/
+│       ├── data.js                           -> Dashboarddata (generert)
+│       ├── charts.js
+│       ├── table.js
+│       └── main.js
+│
+├── dashboards/
+│   └── Pensjon Dashboard.lvdash.json         -> Databricks Lakeview dashboard-config
+│
+├── docs/                                     -> Dokumentsjon og bilder
+│   ├── Dashboard.png
+│   ├── architecture.svg
+│   └── dashboard_button.svg
+│
+├── notebooks/
+│   ├── 01_bronze_ingest.ipynb
+│   ├── 02_silver.ipynb
+│   ├── 03_gold.ipynb
+│   ├── 04_dashboard_setup.ipynb
+│   └── 05_generate_github_dashboard.ipynb
+│
+├── sql/
+│   ├── README.md
+│   └── github_dashboard/                     -> SQL-spørringer for notebook 05
+│       ├── aldersfordeling.sql
+│       ├── aldersgruppe_trend.sql
+│       ├── kommuner_detalj.sql
+│       ├── pensjonsandel_latest.sql
+│       ├── pensjonsandel_trend.sql
+│       ├── top_kommuner.sql
+│       └── top_naeringer.sql
+│
+└── templates/
+    └── index.html.tpl                        -> HTML-template for GitHub Pages
+```
+
+
+## Forklaring av mappestruktur
+
+Prosjektet har en tydelig separasjon mellom Databricks-logikk, SQL, frontend og genererte filer:
+
+<table>
+  <thead>
+    <tr>
+      <th>Mappe</th>
+      <th>Innhold</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>notebooks/</code></td>
+      <td>Databricks-notebookene som kjører pipelinen (01–04) og genererer dashboardet (05). Notebookene eier ingen SQL eller HTML direkte — all transformasjonslogikk og template-innhold leses fra eksterne filer.</td>
+    </tr>
+    <tr>
+      <td><code>sql/github_dashboard/</code></td>
+      <td>SQL-spørringene som notebook 05 bruker for å hente data fra Gold-tabellene i Unity Catalog. Template-variabler (<code>$catalog</code>, <code>$schema</code>) substitueres ved kjøring.</td>
+    </tr>
+    <tr>
+      <td><code>templates/</code></td>
+      <td>HTML-templaten for GitHub Pages-dashboardet. KPI-plassholdere (<code>$kpi_year</code>, <code>$kpi_pensjonsandel</code> osv.) fylles inn av notebook 05.</td>
+    </tr>
+    <tr>
+      <td><code>assets/</code></td>
+      <td>CSS og JavaScript for det statiske dashboardet. <code>data.js</code> genereres av notebook 05, resten er håndskrevne frontend-filer.</td>
+    </tr>
+    <tr>
+      <td><code>dashboards/</code></td>
+      <td>Databricks Lakeview-konfigurasjonen som vises visuelt i Databricks-workspacen.</td>
+    </tr>
+  </tbody>
+</table>
+
 
 ## Designvalg
 
@@ -124,8 +191,12 @@ Python henter data og orkestrerer, men all rensing, kobling og aggregering skjer
 **Bronze er rå.** <br>
 Bronze inneholder ufiltrert SSB-data med alle dimensjoner. Filtrering skjer først i Silver, slik at regler kan endres uten å hente data på nytt.
 
-**Estimert pensjonsvolum.** <br> 
+**Ekstern SQL og HTML.** <br>
+Notebook 05 inneholder ingen hardkodet SQL eller HTML. Spørringer leses fra `sql/github_dashboard/*.sql` og HTML fra `templates/index.html.tpl`. Det gjør notebooken ren og logikken vedlikeholdbar uavhengig.
+
+**Estimert pensjonsvolum.** <br>
 Beregnet som `lønnstakere × månedslønn × 12 × 2 % OTP` — en forenkling, men gir et relativt bilde av næringenes pensjonsrelevans.
+
 
 ## Teknologier
 
