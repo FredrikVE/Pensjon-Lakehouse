@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pensjon Lakehouse Dashboard</title>
+    <title>Pensjon Lakehouse | GitHub Pages Showcase</title>
+    <meta name="robots" content="noindex, nofollow">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +24,7 @@
             Pensjonsdemografi i Norge &middot;
             SSB 07459 + 11654 &middot;
             Bronze &rarr; Silver &rarr; Gold &middot;
-            <a href="https://github.com/FredrikVE/Pensjon-Lakehouse" target="_blank">GitHub</a>
+            <a href="https://github.com/FredrikVE/Pensjon-Lakehouse" target="_blank" rel="noopener noreferrer">GitHub</a>
         </p>
     </div>
 
@@ -97,10 +99,10 @@
     <div class="footer">
         Generert $generated_date &middot;
         Data:
-        <a href="https://www.ssb.no/statbank/table/07459" target="_blank">SSB 07459</a> +
-        <a href="https://www.ssb.no/statbank/table/11654" target="_blank">SSB 11654</a>
+        <a href="https://www.ssb.no/statbank/table/07459" target="_blank" rel="noopener noreferrer">SSB 07459</a> +
+        <a href="https://www.ssb.no/statbank/table/11654" target="_blank" rel="noopener noreferrer">SSB 11654</a>
         &middot;
-        <a href="https://github.com/FredrikVE/Pensjon-Lakehouse" target="_blank">FredrikVE/Pensjon-Lakehouse</a>
+        <a href="https://github.com/FredrikVE/Pensjon-Lakehouse" target="_blank" rel="noopener noreferrer">FredrikVE/Pensjon-Lakehouse</a>
     </div>
 </div>
 
