@@ -76,6 +76,12 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 | 04 | `04_dashboard_setup` | SQL-spørringer og guide for Databricks-dashboardet |
 | 05 | `05_generate_github_dashboard` | Genererer statisk HTML-dashboard fra Gold-data |
 
+## Databicks-dashboard
+
+Dashboardet som kjøres inne på Databriks ligger i filen `Pensjon Dashboard.lvdash.json`, og brukes til å visalisere datane i **notebook 3 med data på gold-standard**, dvs notebooken `03_gold.ipynb`.
+
+Det er viktig at notebook 1, notebook 2 og notebook 3 kjøres først.
+
 
 ## Kjøring
 
@@ -87,7 +93,7 @@ Forutsetninger: Databricks workspace med Unity Catalog og tilgang til en SQL War
 2. Kjør `01_bronze_ingest` — henter data fra SSB og oppretter bronze-tabeller
 3. Kjør `02_silver` — bygger silver-tabeller
 4. Kjør `03_gold` — bygger gold-tabeller
-5. Kjør `05_generate_github_dashboard` — genererer `index.html` og `data.js` fra Gold-data
+5. Kjør `05_generate_github_dashboard` — genererer `showcase-page/index.html` og `showcase-page/assets/js/data.js` fra Gold-data
 
 
 ## Prosjektstruktur
@@ -95,52 +101,52 @@ Forutsetninger: Databricks workspace med Unity Catalog og tilgang til en SQL War
 ```bash
 Pensjon-Lakehouse/
 ├── README.md
-├── index.html                                -> GitHub Pages dashboard (generert)
-├── robots.txt
-│
-├── assets/                                   -> Frontend for GitHub Pages
-│   ├── css/
-│   │   ├── main.css
-│   │   ├── tokens.css
-│   │   ├── base.css
-│   │   ├── layout.css
-│   │   ├── components.css
-│   │   ├── table.css
-│   │   └── responsive.css
-│   └── js/
-│       ├── data.js                           -> Dashboarddata (generert)
-│       ├── charts.js
-│       ├── table.js
-│       └── main.js
 │
 ├── dashboards/
 │   └── Pensjon Dashboard.lvdash.json         -> Databricks Lakeview dashboard-config
 │
-├── resources/                                 -> Bilder til Dokumentasjon
-│   ├── Dashboard.png
-│   ├── architecture.svg
-│   └── dashboard_button.svg
-│
-├── notebooks/
+├── notebooks/                                -> Databricks-notebooks, prosjektets hovedfokus
 │   ├── 01_bronze_ingest.ipynb
 │   ├── 02_silver.ipynb
 │   ├── 03_gold.ipynb
 │   ├── 04_dashboard_setup.ipynb
-│   └── 05_generate_github_dashboard.ipynb
+│   └── 05_generate_github_dashboard.ipynb    -> Genererer statisk showcase-side
 │
-├── sql/
-│   ├── README.md
-│   └── github_dashboard/                     -> SQL-spørringer for notebook 05
-│       ├── aldersfordeling.sql
-│       ├── aldersgruppe_trend.sql
-│       ├── kommuner_detalj.sql
-│       ├── pensjonsandel_latest.sql
-│       ├── pensjonsandel_trend.sql
-│       ├── top_kommuner.sql
-│       └── top_naeringer.sql
+├── resources/                                -> Bilder til README/dokumentasjon
+│   ├── Dashboard.png
+│   ├── architecture.svg
+│   └── dashboard_button.svg
 │
-└── templates/
-    └── index.html.tpl                        -> HTML-template for GitHub Pages
+└── showcase-page/                            -> Statisk GitHub Pages-showcase
+    ├── index.html                            -> Generert dashboard-side
+    ├── robots.txt
+    │
+    ├── assets/
+    │   ├── css/
+    │   │   ├── main.css
+    │   │   ├── tokens.css
+    │   │   ├── base.css
+    │   │   ├── layout.css
+    │   │   ├── components.css
+    │   │   ├── table.css
+    │   │   └── responsive.css
+    │   └── js/
+    │       ├── data.js                       -> Dashboarddata generert av notebook 05
+    │       ├── charts.js
+    │       ├── table.js
+    │       └── main.js
+    │
+    ├── sql/                                  -> SQL-spørringer for notebook 05
+    │   ├── aldersfordeling.sql
+    │   ├── aldersgruppe_trend.sql
+    │   ├── kommuner_detalj.sql
+    │   ├── pensjonsandel_latest.sql
+    │   ├── pensjonsandel_trend.sql
+    │   ├── top_kommuner.sql
+    │   └── top_naeringer.sql
+    │
+    └── templates/
+        └── index.html.tpl                    -> HTML-template for GitHub Pages
 ```
 
 
@@ -158,23 +164,31 @@ Prosjektet har en tydelig separasjon mellom Databricks-logikk, SQL, frontend og 
   <tbody>
     <tr>
       <td><code>notebooks/</code></td>
-      <td>Databricks-notebookene som kjører pipelinen (01–04) og genererer dashboardet (05). Notebookene eier ingen SQL eller HTML direkte — all transformasjonslogikk og template-innhold leses fra eksterne filer.</td>
+      <td>Databricks-notebookene som kjører pipelinen fra Bronze til Silver og Gold. Dette er hoveddelen av prosjektet.</td>
     </tr>
     <tr>
-      <td><code>sql/github_dashboard/</code></td>
-      <td>SQL-spørringene som notebook 05 bruker for å hente data fra Gold-tabellene i Unity Catalog. Template-variabler (<code>$catalog</code>, <code>$schema</code>) substitueres ved kjøring.</td>
+      <td><code>showcase-page/</code></td>
+      <td>Statisk GitHub Pages-showcase av dashboardet. Mappen inneholder generert HTML, frontend-filer, SQL-spørringer og HTML-template brukt av notebook 05.</td>
     </tr>
     <tr>
-      <td><code>templates/</code></td>
-      <td>HTML-templaten for GitHub Pages-dashboardet. KPI-plassholdere (<code>$kpi_year</code>, <code>$kpi_pensjonsandel</code> osv.) fylles inn av notebook 05.</td>
+      <td><code>showcase-page/sql/</code></td>
+      <td>SQL-spørringene som notebook 05 bruker for å hente data fra Gold-tabellene i Unity Catalog. Template-variabler som <code>$catalog</code> og <code>$schema</code> substitueres ved kjøring.</td>
     </tr>
     <tr>
-      <td><code>assets/</code></td>
+      <td><code>showcase-page/templates/</code></td>
+      <td>HTML-templaten for GitHub Pages-dashboardet. KPI-plassholdere som <code>$kpi_year</code>, <code>$kpi_pensjonsandel</code> osv. fylles inn av notebook 05.</td>
+    </tr>
+    <tr>
+      <td><code>showcase-page/assets/</code></td>
       <td>CSS og JavaScript for det statiske dashboardet. <code>data.js</code> genereres av notebook 05, resten er håndskrevne frontend-filer.</td>
     </tr>
     <tr>
       <td><code>dashboards/</code></td>
       <td>Databricks Lakeview-konfigurasjonen som vises visuelt i Databricks-workspacen.</td>
+    </tr>
+    <tr>
+      <td><code>resources/</code></td>
+      <td>Bilder og SVG-er brukt i README og dokumentasjon.</td>
     </tr>
   </tbody>
 </table>
@@ -191,8 +205,8 @@ Python henter data og orkestrerer, men all rensing, kobling og aggregering skjer
 **Bronze er rå.** <br>
 Bronze inneholder ufiltrert SSB-data med alle dimensjoner. Filtrering skjer først i Silver, slik at regler kan endres uten å hente data på nytt.
 
-**Ekstern SQL og HTML.** <br>
-Notebook 05 inneholder ingen hardkodet SQL eller HTML. Spørringer leses fra `sql/github_dashboard/*.sql` og HTML fra `templates/index.html.tpl`. Det gjør notebooken ren og logikken vedlikeholdbar uavhengig.
+**Ekstern SQL og HTML for showcase-siden.** <br>
+Notebook 05 inneholder ingen hardkodet SQL eller HTML for den statiske GitHub Pages-versjonen. Spørringer leses fra `showcase-page/sql/*.sql`, og HTML bygges fra `showcase-page/templates/index.html.tpl`. Resultatet skrives til `showcase-page/index.html` og `showcase-page/assets/js/data.js`.
 
 **Estimert pensjonsvolum.** <br>
 Beregnet som `lønnstakere × månedslønn × 12 × 2 % OTP` — en forenkling, men gir et relativt bilde av næringenes pensjonsrelevans.
