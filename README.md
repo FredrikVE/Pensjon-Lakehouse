@@ -13,13 +13,13 @@ Data hentes fra SSBs åpne API og foredles gjennom lagene Bronze → Silver → 
 
 <p align="center">
   <a href="https://fredrikve.github.io/Pensjon-Lakehouse/">
-    <img src="docs/dashboard_button.svg" alt="Åpne live dashboard">
+    <img src="resources/dashboard_button.svg" alt="Åpne live dashboard">
   </a>
 </p>
 
 ### Screenshot av dashboard i Databricks
 
-![Dashboard](docs/Dashboard.png)
+![Dashboard](resources/Dashboard.png)
 
 
 ## Problemstilling
@@ -35,7 +35,7 @@ Prosjektet kombinerer befolkningsdata (alder per kommune) med lønns- og syssels
 
 ## Arkitektur
 
-![Arkitektur](docs/architecture.svg)
+![Arkitektur](resources/architecture.svg)
 
 
 ## Datakilder
@@ -116,7 +116,7 @@ Pensjon-Lakehouse/
 ├── dashboards/
 │   └── Pensjon Dashboard.lvdash.json         -> Databricks Lakeview dashboard-config
 │
-├── docs/                                     -> Dokumentsjon og bilder
+├── resources/                                 -> Bilder til Dokumentasjon
 │   ├── Dashboard.png
 │   ├── architecture.svg
 │   └── dashboard_button.svg
